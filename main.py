@@ -464,7 +464,7 @@ class Ui_MainWindow(object):
         global tile, tile_array, tile_width, tile_height, tile_n_channels  # get tile data variables
         tile_path = file_path
         tile = cv.imread(str(tile_path))  # open new tile
-        tile = tile.convert('RGB')
+        tile = cv.cvtColor(tile, cv.COLOR_BGR2RGB)
         tile_array = np.array(tile)  # get array from new tile
         (tile_width, tile_height, tile_n_channels) = tile_array.shape  # update tile data variables
         self.label_22.setPixmap(QtGui.QPixmap(str(tile_path)))  # update tile thumbnail
@@ -604,7 +604,6 @@ def tensor_to_image(tensor):
 if __name__ == "__main__":
     import sys
 
-    global tile, tile_array
     tile_path = str('Decking_300x300.png')  # set initial tile path
     tile = cv.imread(str(tile_path))
     tile = cv.cvtColor(tile, cv.COLOR_BGR2RGB)
