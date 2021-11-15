@@ -69,13 +69,13 @@ class Ui_MainWindow(object):
         self.label_19.setObjectName("label_19")
         self.verticalLayout_7.addWidget(self.label_19)
         self.label_9 = QtWidgets.QLabel(self.scrollAreaWidgetContents)
-        self.label_9.setMouseTracking(True)
+        #self.label_9.setMouseTracking(True)
         self.label_9.setAutoFillBackground(True)
         self.label_9.setFrameShape(QtWidgets.QFrame.Box)
         self.label_9.setFrameShadow(QtWidgets.QFrame.Plain)
         self.label_9.setLineWidth(2)
-        self.label_9.setText("")
-        self.label_9.setPixmap(QtGui.QPixmap("../../../../../Tese/workspace/stone_floor_256x256.png"))
+
+        self.label_9.setAlignment(QtCore.Qt.AlignTop)
         self.label_9.setObjectName("label_9")
         self.verticalLayout_7.addWidget(self.label_9)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
@@ -318,7 +318,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "TILER_3.0"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "SirVey"))
         self.label_19.setText(_translate("MainWindow", "Roller"))
         self.label_18.setText(_translate("MainWindow", "Capture"))
         self.label.setText(_translate("MainWindow", "MSE:"))
@@ -361,13 +361,14 @@ class Ui_MainWindow(object):
         global roll_array
         roller_width = self.spinBox_5.value()
         roller_height = self.spinBox_6.value()
+        capture_height = self.spinBox_2.value()
         img = tile_array
         print(img.shape)
         # im_height, im_width, im_channels = img.shape
         # roller = np.zeros([im_height, im_width, im_channels], dtype=np.uint8)
         horizontal_slice = img
 
-        while (horizontal_slice.shape[1] < roller_width):
+        while horizontal_slice.shape[1] < roller_width:
             horizontal_slice = np.concatenate((horizontal_slice, img), axis=1)  # ---tile horizontally if necessary
             print('tiling horizontally')
             print(horizontal_slice.shape)
@@ -375,7 +376,7 @@ class Ui_MainWindow(object):
         if roll_array.shape[1] < roller_width:
             roll_array = horizontal_slice
             print(roll_array.shape)
-        while (roll_array.shape[0] < roller_height):
+        while roll_array.shape[0] < roller_height + capture_height:
             roll_array = np.concatenate((roll_array, horizontal_slice),
                                         axis=0)  # ---tile vertically if necessary
             print('tiling verticaly')
@@ -448,11 +449,11 @@ class Ui_MainWindow(object):
         capture_width = self.spinBox.value()
         capture_height = self.spinBox_2.value()
         roller_speed = self.spinBox_3.value()
-        capture_preview = roll_array[0:capture_height, 0:capture_width]
+        #when copying must set type as array or else problems will come
+        capture_preview = np.array(roll_array[0:capture_height, 0:capture_width, ::], dtype=np.uint8)
         print(capture_preview.shape)
 
         # convert capture_array to qpixmap
-        capture_preview = cv.cvtColor(capture_preview, cv.COLOR_BGR2RGB)
         height, width, channels = capture_preview.shape  # height, width, channel
         bytesPerLine = width * channels  # *3 for RGB
         qImg2 = QtGui.QImage(capture_preview.data, width, height, bytesPerLine,
@@ -506,10 +507,9 @@ class Ui_MainWindow(object):
         # wait a second
 
     def update_prediction_window(self):
-        prediction_rgb = cv.cvtColor(prediction_array, cv.COLOR_BGR2RGB)
-        height, width, channels = prediction_rgb.shape  # height, width, channel
+        height, width, channels = prediction_array.shape  # height, width, channel
         bytesPerLine = width * channels  # *3 for RGB
-        qImg1 = QtGui.QImage(prediction_rgb.data, width, height, bytesPerLine,
+        qImg1 = QtGui.QImage(prediction_array.data, width, height, bytesPerLine,
                              QtGui.QImage.Format_RGB888)  # convert to QImg
         self.label_16.setPixmap(QtGui.QPixmap(qImg1))  # show img
 
@@ -608,7 +608,7 @@ if __name__ == "__main__":
     tile = cv.imread(str(tile_path))
     tile = cv.cvtColor(tile, cv.COLOR_BGR2RGB)
     tile_array = np.array(tile)  # get tile path array
-    (tile_width, tile_height, tile_n_channels) = tile_array.shape  # get tile width, size and number of chanels
+    (tile_width, tile_height, tile_n_channels) = tile_array.shape  # get tile width, size and number of channels
     roller_speed = 7
 
     roll_array = np.zeros([2, 2, 2], dtype=np.uint8)
