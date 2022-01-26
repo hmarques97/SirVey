@@ -578,7 +578,7 @@ def generate_first_capture_batch():
         input_arr = capture_array
         input_arr = input_arr / 255
         input_arr = np.expand_dims(input_arr, axis=0)
-        # img_batch = np.squeeze(img_batch, axis = 0)
+        # first_batch = np.squeeze(first_batch, axis = 0)
         img_batch = np.concatenate((img_batch, input_arr), axis=0)
         roll_array = roll_array[roller_speed:]
         print(img_batch.shape)
